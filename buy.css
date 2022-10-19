@@ -1,0 +1,50 @@
+body{
+    margin: 0;
+    padding: 0;
+    background-color: beige;
+}
+
+a{
+    text-decoration: none;
+}
+.slider{
+    margin: 25px;
+    width: 350px;
+    border-radius: 25px;
+    overflow: hidden;
+}
+
+.image{
+    position: relative;
+}
+
+.image img{
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    box-sizing: border-box;
+}
+
+.product-name{
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name a{
+    margin: 10px 0px;
+    font-size: 20px;
+    font-weight: bolder;
+}
+
+.price{
+    font-size: 17px;
+    font-weight: bold;
+    margin-top: 23px;
+}
+
+.container{
+    display: flex;
+    justify-content: left;
+    height: 1000px;
+    width: 2000px;
+}

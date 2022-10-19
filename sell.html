@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/sell.css">
+    <title>Document</title>
+    <style>label{display: inline-block; width: 80px}</style>
+    <style>
+        img{ 
+            height:200px;
+            width:200px;
+            /* border: 2px black solid; */
+        }    
+    </style>
+</head>
+<body>
+    <div class='sell'></div>
+    <h2>
+        SELL
+    </h2>
+    <div class="contt">
+
+        <label>Item Name:</label> <input id="Namebox" type="text"></input><br><br>
+        <label>Item Description:</label> <input id="Descbox" type="text"></input><br><br>
+        <label>Item Sell/Rent:</label> <input id="SRbox" type="text"></input><br><br>
+        <label>Item Price:</label> <input id="Pricebox" type="number"></input><br><br>
+        Item Image:<br><img id="MyImg"><label id="UpPrg"></label><br><br><button id="Upld">Upload Image</button>
+        <button id="Submit">SUBMIT</button>
+    </div>
+    
+    <script type="module">
+        
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.1/firebase-app.js";
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyAKVumoSrW7QtgsHxtLcse0mcdcpGyI0N0",
+          authDomain: "cinemake-fb565.firebaseapp.com",
+          projectId: "cinemake-fb565",
+          storageBucket: "cinemake-fb565.appspot.com",
+          messagingSenderId: "481641503750",
+          appId: "1:481641503750:web:a274d0ff15f00e28fc3787"
+        };
+      
+        const app = initializeApp(firebaseConfig);
+
+        import{getDatabase, ref, set}
+        from "https://www.gstatic.com/firebasejs/9.4.1/firebase-database.js";
+
+        import{getStorage, ref as sRef, uploadBytesResumable, getDownloadURL}
+        from "https://www.gstatic.com/firebasejs/9.4.1/firebase-storage.js";
+
+        const db = getDatabase();
+
+        var files=[];
+        var reader = new FileReader();
+
+        var namebox = document.getElementById("Namebox");
+        var descbox = document.getElementById("Descbox");
+        var srbox = document.getElementById("SRbox");
+        var pricebox = document.getElementById("Pricebox");
+        var myimg = document.getElementById("MyImg");
+        var proglab = document.getElementById("UpPrg");
+        var upload = document.getElementById("Upld");
+        var submit = document.getElementById("Submit");
+
+        var input = document.createElement("input");
+        input.type = "file";
+
+        
+        input.onchange = e =>{
+            files = e.target.files;
+            //var extension = GetFileExt(files[0]);
+
+            reader.readAsDataURL(files[0]);
+        }
+
+        reader.onload = function(){
+            myimg.src = reader.result;
+        }
+
+        upload.onclick = function(){
+            input.click();
+        }
+
+        async function UploadProcess(){
+            // set(ref(db,"TheItems/"+namebox.value),{
+            //     ItmName: namebox.value,
+            //     ItmDesc: descbox.value,
+            //     ItmSR: srbox.value,
+            //     ItmPrice: pricebox.value
+            // })
+
+            var ImgToUpload = files[0];
+
+            const metaData ={
+                contentType: ImgToUpload.type
+            }
+
+            const storage = getStorage();
+
+            const storageRef = sRef(storage, "Images/");
+
+            const UploadTask = uploadBytesResumable(storageRef, ImgToUpload, metaData);
+
+            UploadTask.on("state-changed", (snapshot)=>{
+                var progress = ( snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                proglab.innerHTML = "upload: "+progress+"%";
+            },
+            (error)=>{
+                alert("Error");
+            },
+            ()=>{
+                    getDownloadURL(UploadTask.snapshot.ref).then((downloadURL)=>{
+                        InsertData(downloadURL);
+                    });
+            }
+            );
+        }
+
+        function InsertData(URL){
+            set(ref(db,"TheItems/"+namebox.value),{
+                ItmName: namebox.value,
+                ItmDesc: descbox.value,
+                ItmSR: srbox.value,
+                ItmPrice: pricebox.value,
+                ItmURL: URL
+            })
+        }
+
+        submit.addEventListener('click',UploadProcess);
+
+      </script>
+    </body>
+</html>
